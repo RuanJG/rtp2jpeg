@@ -15,6 +15,7 @@ void signal_handler(int sigm)
     if(f_in == 0){
         stop_engine();
         f_in++;
+        printf("\n");
     }
 }
 int usage(int argc,char **argv)

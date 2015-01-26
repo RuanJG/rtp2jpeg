@@ -300,7 +300,7 @@ int read_frame(struct camera *cam,unsigned char *buffer,int *len/*数据大小*/
 	    }
 	}
     memcpy(buffer,(unsigned char *)cam->buffers[buf.index].start,buf.bytesused);
-    printf("cam->n_buffers=%d\nbuf.index=%d\nbuf.bytesused=%d\n",cam->n_buffers,buf.index,buf.bytesused);
+    //printf("cam->n_buffers=%d\nbuf.index=%d\nbuf.bytesused=%d\n",cam->n_buffers,buf.index,buf.bytesused);
     if (-1 == xioctl(cam->fd, VIDIOC_QBUF, &buf))
         errno_exit("VIDIOC_QBUF");
     dbug("video QBUF");

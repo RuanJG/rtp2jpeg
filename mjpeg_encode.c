@@ -46,6 +46,14 @@ static void send_jpeg_rtp(unsigned char *p,
 
 
 /*********************关键函数***********************************/
+
+#ifdef SAVEFIRSTJPEG
+int first = 0;
+FILE *pf;
+char mjpeg_name[100]="mjpegimage.jpg";
+#endif
+
+
 void jpeg_encode_yuyv422_rtp(unsigned char *jpeg_data,int width,int hight)
 {
     int i = 0;
@@ -57,6 +65,13 @@ void jpeg_encode_yuyv422_rtp(unsigned char *jpeg_data,int width,int hight)
 
     yuyv422torgb(jpeg_data,frame_buffer,width,hight); 
     encode_rgb_to_jpeg_mem(frame_buffer,&outbuf,&outsize,width,hight);
+#ifdef SAVEFIRSTJPEG
+    if(first == 0){
+        pf = fopen(mjpeg_name,"wa+");
+        fwrite(outbuf,outsize,1,pf);
+        first++;
+    }
+#endif
     dbug("encode rgb to jpeg mem");
     unsigned char *ptcur = outbuf;
     
