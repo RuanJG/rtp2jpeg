@@ -48,7 +48,8 @@ struct jpeghdr_qtable {
 
 void jpeg_encode_yuyv422_rtp(unsigned char *jpeg_data,int width,int hight);
 void jpeg_encode_yuyv420_rtp(unsigned char *jpeg_data,int width,int hight);
-
+/*直接采集jpeg数据传输*/
+void jpeg_rtp(unsigned char *jpeg_data,int width,int height,int imagesize);
 
 
 #endif

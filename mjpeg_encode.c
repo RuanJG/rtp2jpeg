@@ -91,7 +91,17 @@ out:
     free(frame_buffer);
 }
 
-
+void jpeg_rtp(unsigned char *jpeg_data,int width,int height,int imagesize)
+{
+#ifdef SAVEFIRSTJPEG
+    if(first == 0){
+        pf = fopen(mjpeg_name,"wa+");
+        fwrite(jpeg_data,imagesize,1,pf);
+        first++;
+    }
+#endif
+    send_jpeg_rtp(jpeg_data,imagesize,width,height);
+}
 
 /*************************yuyv422torgb**************************/
 int sign3;
@@ -209,26 +219,6 @@ unsigned start_seq = 0;
 
 unsigned char extractQTable1[64];
 unsigned char extractQTable2[64];
-/*提取量化表*/
-static void extractQTable(unsigned char *in,int len)
-{
-    int i=0,j=0,k=0;
-    unsigned char *p = in;
-    for(i = 0;i<len;++i){
-        if( (p[i] == 0xFF) && p[i+1] == 0xDB ){
-            if(k == 0){
-                for(j = 0;j<64;++j)
-                    extractQTable1[j] = p[i+5+j];
-                k = 1;
-            }
-            if(k == 1){
-                for(j = 0;j<64;++j)
-                    extractQTable2[j] = p[i+5+j];
-                break;
-            }
-        }
-    }
-}
 #define PACKET_SIZE 1400
 
 
@@ -366,8 +356,8 @@ static void send_jpeg_rtp(unsigned char *in,int outsize,int width,int height)
     unsigned char typemjpeg = 1;
     unsigned char typespecmjpeg = 1;
     unsigned char drimjpeg = 0;
-    unsigned char qmjpeg = 80;
-    extractQTable(in,outsize);
+    unsigned char qmjpeg = 70;/*没用的参数*/
+ //   extractQTable(in,outsize);
     start_seq = SendFrame(start_seq,ts_current,10, in,outsize,typemjpeg,typespecmjpeg,width,height,drimjpeg,qmjpeg,extractQTable1,extractQTable2);
-
 }
+

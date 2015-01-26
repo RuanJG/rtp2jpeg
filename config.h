@@ -10,14 +10,14 @@
 /******************调试信息*****************************/
 #define OUTPUT_CAMINFO/*输出摄像头的信息*/
 #define SAVEFIRSTJPEG/*输出第一副图片用于测试*/
-
+#define CAM_MJPEG
 
 
 /******************摄像头信息***************************/
 #define CAM_WIDGH 640
 #define CAM_HEIGHT  480
 // height widgh
-#define CAM_DEVICE "/dev/video0"
+#define CAM_DEVICE "/dev/video1"
 
 /**********************dbug*********************************/
 

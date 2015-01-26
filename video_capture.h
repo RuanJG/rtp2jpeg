@@ -21,24 +21,20 @@ struct camera{
     int display_depth;
     int image_size;
     int frame_number;
-    unsigned char support_fmt;
-    /*  7  6  5  4  3      2      1       0 
-     *                     yuv420 yuyv422 jpeg
-     * */
-    int fmt_select;/*如果为FMT_AUTO 则程序自动选则输出格式，并且选则的优先级为先jpeg,yuyv422,yuv420,如果设置为FMT_YUYV422,表示输出YUYV422,FMT_YUV420表示输出yuv420*/
+    int support_fmt;
     unsigned int n_buffers;
     struct v4l2_capability v4l2_cap;
     struct v4l2_cropcap v4l2_cropcap;
     struct v4l2_format v4l2_fmt;
     struct v4l2_crop v4l2_crop;
     struct v4l2_fmtdesc v4l2_fmtdesc;
+    struct v4l2_streamparm v4l2_setfps;
     struct buffer *buffers;
 };
 /*上面参数fmt_select选择*/
-#define FMT_AUTO    101
-#define FMT_YUYV422 102
-#define FMT_YUV420  103
-
+#define FMT_JPEG    0x10000001
+#define FMT_YUYV422 0x10000002
+#define FMT_YUYV420 0x10000003
 /*辅助函数*/
 //void errno_exit(const char *s);
 //int xioctl(int fd,int request,void *arg);

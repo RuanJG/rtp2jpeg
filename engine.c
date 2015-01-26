@@ -27,11 +27,8 @@ pthread_t socket_thread;
 
 volatile int stop_all = 0;/*1:stop,0:run*/
 
-
-
 static struct camera *cam_init(void);
 static void create_cam_pthread(struct camera *cam);
-
 
 void stop_engine(void)
 {
@@ -39,6 +36,7 @@ void stop_engine(void)
     usleep(1000*100);
    free(cam->device_name);
     v4l2_exit(cam);
+    //exit_socket(xxx);
 }
 
 void start_engine(void)
@@ -63,13 +61,18 @@ static struct camera * cam_init(void)
 void capture_encode_thread(void)
 {
     int ret = -1;
-    int len = 0;
+    int imagesize = 0;
     unsigned char *bigbuffer = (unsigned char *)malloc(cam->width*cam->height*3*sizeof(unsigned char ));
     while(!stop_all){
-        ret = read_frame(cam,bigbuffer,&len);
+        ret = read_frame(cam,bigbuffer,&imagesize);
         if(!ret){
             /*选择要压缩的格式类型*/
+#ifdef CAM_MJPEG
+            printf("imagesize = %d\n",imagesize);
+            jpeg_rtp(bigbuffer,cam->width,cam->height,imagesize);/*直接从摄像头得到的数据就是jpeg数据*/
+#else
             jpeg_encode_yuyv422_rtp(bigbuffer,cam->width,cam->height);
+#endif
             dbug("jpeg_encode");
         }
     }

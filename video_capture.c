@@ -74,11 +74,12 @@ static void close_camera(struct camera *cam)
 
 static void init_camera(struct camera*cam)
 {
-    struct v4l2_capability  *cap     = &(cam->v4l2_cap);
-    struct v4l2_cropcap     *cropcap = &(cam->v4l2_cropcap);
-    struct v4l2_crop        *crop    = &(cam->v4l2_crop);
-    struct v4l2_format      *fmt     = &(cam->v4l2_fmt);
-    struct v4l2_fmtdesc     *fmtdesc = &(cam->v4l2_fmtdesc);
+    struct v4l2_capability  *cap        = &(cam->v4l2_cap);
+    struct v4l2_cropcap     *cropcap    = &(cam->v4l2_cropcap);
+    struct v4l2_crop        *crop       = &(cam->v4l2_crop);
+    struct v4l2_format      *fmt        = &(cam->v4l2_fmt);
+    struct v4l2_fmtdesc     *fmtdesc    = &(cam->v4l2_fmtdesc);
+    struct v4l2_streamparm  *streamparm = &(cam->v4l2_setfps);
    
     struct v4l2_requestbuffers req;
     unsigned int min;
@@ -139,16 +140,28 @@ static void init_camera(struct camera*cam)
     fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     fmt->fmt.pix.width = cam->width;
     fmt->fmt.pix.height = cam->height;
-
-
+#ifdef CAM_MJPEG
+    fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG; 
+    fmt->fmt.pix.field = V4L2_FIELD_ANY; //隔行扫描
+#else
     fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;//yuv422
-    //fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420
-    //fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG
-    fmt->fmt.pix.field = V4L2_FIELD_INTERLACED; //隔行扫描
     
+    //fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
+
+    fmt->fmt.pix.field = V4L2_FIELD_INTERLACED; //隔行扫描
+#endif
+        
     if (-1 == xioctl(cam->fd, VIDIOC_S_FMT, fmt))
         errno_exit("VIDIOC_S_FMT");
     
+#if 1
+    CLEAR(*streamparm);
+    streamparm->type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    streamparm->parm.capture.timeperframe.numerator   = 1;
+    streamparm->parm.capture.timeperframe.denominator = 25;
+    if(-1==xioctl(cam->fd,VIDIOC_S_PARM,streamparm))
+        errno_exit("VIDIOC_S_PARM");
+#endif
     min = fmt->fmt.pix.width * 2;/*YUYV 每个像素占用2个字节*/
     if (fmt->fmt.pix.bytesperline < min)
         fmt->fmt.pix.bytesperline = min;
@@ -301,6 +314,7 @@ int read_frame(struct camera *cam,unsigned char *buffer,int *len/*数据大小*/
 	}
     memcpy(buffer,(unsigned char *)cam->buffers[buf.index].start,buf.bytesused);
     //printf("cam->n_buffers=%d\nbuf.index=%d\nbuf.bytesused=%d\n",cam->n_buffers,buf.index,buf.bytesused);
+    *len = buf.bytesused;
     if (-1 == xioctl(cam->fd, VIDIOC_QBUF, &buf))
         errno_exit("VIDIOC_QBUF");
     dbug("video QBUF");
