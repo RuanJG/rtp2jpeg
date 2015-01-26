@@ -1,0 +1,6 @@
+*.o
+tags
+camera_encode
+*~
+*.jpg
+
