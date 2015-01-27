@@ -93,6 +93,7 @@ out:
 
 void jpeg_rtp(unsigned char *jpeg_data,int width,int height,int imagesize)
 {
+    int i;
 #ifdef SAVEFIRSTJPEG
     if(first == 0){
         pf = fopen(mjpeg_name,"wa+");
@@ -353,7 +354,7 @@ unsigned short SendFrame(unsigned short start_seq,
 
 static void send_jpeg_rtp(unsigned char *in,int outsize,int width,int height)
 {
-    unsigned char typemjpeg = 1;
+    unsigned char typemjpeg = 0;/*如果采集的数据时jpeg这里要设置为0,如果时软件压缩的数据，这里设置为1即可*/
     unsigned char typespecmjpeg = 1;
     unsigned char drimjpeg = 0;
     unsigned char qmjpeg = 70;/*没用的参数*/

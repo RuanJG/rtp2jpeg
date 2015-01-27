@@ -142,18 +142,14 @@ static void init_camera(struct camera*cam)
     fmt->fmt.pix.height = cam->height;
 #ifdef CAM_MJPEG
     fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG; 
-    fmt->fmt.pix.field = V4L2_FIELD_ANY; //隔行扫描
 #else
     fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;//yuv422
-    
     //fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
-
-    fmt->fmt.pix.field = V4L2_FIELD_INTERLACED; //隔行扫描
 #endif
+    fmt->fmt.pix.field = V4L2_FIELD_INTERLACED; //隔行扫描
         
     if (-1 == xioctl(cam->fd, VIDIOC_S_FMT, fmt))
         errno_exit("VIDIOC_S_FMT");
-    
 #if 1
     CLEAR(*streamparm);
     streamparm->type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
