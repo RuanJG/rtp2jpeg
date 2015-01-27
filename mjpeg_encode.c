@@ -91,6 +91,8 @@ out:
     free(frame_buffer);
 }
 
+static void send_jpeg_rtp_for_fmt_mjpeg(unsigned char *in,int outsize,int width,int height);
+
 void jpeg_rtp(unsigned char *jpeg_data,int width,int height,int imagesize)
 {
     int i;
@@ -101,7 +103,7 @@ void jpeg_rtp(unsigned char *jpeg_data,int width,int height,int imagesize)
         first++;
     }
 #endif
-    send_jpeg_rtp(jpeg_data,imagesize,width,height);
+    send_jpeg_rtp_for_fmt_mjpeg(jpeg_data,imagesize,width,height);
 }
 
 /*************************yuyv422torgb**************************/
@@ -354,6 +356,19 @@ unsigned short SendFrame(unsigned short start_seq,
 
 static void send_jpeg_rtp(unsigned char *in,int outsize,int width,int height)
 {
+    
+    unsigned char typemjpeg = 1;
+    unsigned char typespecmjpeg = 1;
+    unsigned char drimjpeg = 0;
+    unsigned char qmjpeg = 70;/*没用的参数*/
+ //   extractQTable(in,outsize);
+    start_seq = SendFrame(start_seq,ts_current,10, in,outsize,typemjpeg,typespecmjpeg,width,height,drimjpeg,qmjpeg,extractQTable1,extractQTable2);
+}
+
+
+static void send_jpeg_rtp_for_fmt_mjpeg(unsigned char *in,int outsize,int width,int height)
+{
+    
     unsigned char typemjpeg = 0;/*如果采集的数据时jpeg这里要设置为0,如果时软件压缩的数据，这里设置为1即可*/
     unsigned char typespecmjpeg = 1;
     unsigned char drimjpeg = 0;

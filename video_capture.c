@@ -135,21 +135,51 @@ static void init_camera(struct camera*cam)
     crop->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
    
 
-    CLEAR(*fmt);
-
-    fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt->fmt.pix.width = cam->width;
-    fmt->fmt.pix.height = cam->height;
-#ifdef CAM_MJPEG
-    fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG; 
-#else
-    fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;//yuv422
-    //fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
-#endif
-    fmt->fmt.pix.field = V4L2_FIELD_INTERLACED; //隔行扫描
+    int j=0;
+    int flag = 0;/*表示是否成功设置*/
+    for(;j<3;++j){
+        CLEAR(*fmt);
+        fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        fmt->fmt.pix.width = cam->width;
+        fmt->fmt.pix.height = cam->height;
+        switch(j){
+        case 0:
+            fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG; 
+            break;
+        case 1:
+            fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV; 
+            break;
+        case 2:
+            fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
+            break;
+        }
+        fmt->fmt.pix.field = V4L2_FIELD_INTERLACED; //隔行扫描
         
-    if (-1 == xioctl(cam->fd, VIDIOC_S_FMT, fmt))
+        if (-1 == xioctl(cam->fd, VIDIOC_S_FMT, fmt)){
+            continue;
+        }
+        else{
+            switch(j){
+            case 0:
+                cam->support_fmt = FMT_JPEG;
+                flag = 1;
+                break;
+            case 1:
+                cam->support_fmt = FMT_YUYV422;
+                flag = 1;
+                break;
+            case 2:
+                cam->support_fmt = FMT_YUYV420;
+                flag = 1;
+                break;
+            }
+        }
+        if(flag == 1)
+            break;
+    }
+    if(flag == 0)
         errno_exit("VIDIOC_S_FMT");
+        
 #if 1
     CLEAR(*streamparm);
     streamparm->type=V4L2_BUF_TYPE_VIDEO_CAPTURE;

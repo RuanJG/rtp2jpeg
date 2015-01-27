@@ -8,9 +8,8 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 /******************调试信息*****************************/
-#define OUTPUT_CAMINFO/*输出摄像头的信息*/
-#define SAVEFIRSTJPEG/*输出第一副图片用于测试*/
-#define CAM_MJPEG
+//#define OUTPUT_CAMINFO/*输出摄像头的信息*/
+//#define SAVEFIRSTJPEG/*输出第一副图片用于测试*/
 
 
 /******************摄像头信息***************************/

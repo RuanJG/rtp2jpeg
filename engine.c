@@ -67,12 +67,10 @@ void capture_encode_thread(void)
         ret = read_frame(cam,bigbuffer,&imagesize);
         if(!ret){
             /*选择要压缩的格式类型*/
-#ifdef CAM_MJPEG
-            printf("imagesize = %d\n",imagesize);
-            jpeg_rtp(bigbuffer,cam->width,cam->height,imagesize);/*直接从摄像头得到的数据就是jpeg数据*/
-#else
-            jpeg_encode_yuyv422_rtp(bigbuffer,cam->width,cam->height);
-#endif
+            if(cam->support_fmt == FMT_JPEG)
+                jpeg_rtp(bigbuffer,cam->width,cam->height,imagesize);/*直接从摄像头得到的数据就是jpeg数据*/
+            else
+                jpeg_encode_yuyv422_rtp(bigbuffer,cam->width,cam->height);
             dbug("jpeg_encode");
         }
     }
