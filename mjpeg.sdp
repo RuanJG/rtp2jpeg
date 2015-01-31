@@ -1,0 +1,5 @@
+m=video 10000 RTP/AVP 26
+a=rtpmap:26 JPEG/90000;
+a=decode_buf=300;
+a=framerate:25
+c=IN IP4 local

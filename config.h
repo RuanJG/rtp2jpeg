@@ -8,7 +8,7 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 /******************调试信息*****************************/
-//#define OUTPUT_CAMINFO/*输出摄像头的信息*/
+#define OUTPUT_CAMINFO/*输出摄像头的信息*/
 //#define SAVEFIRSTJPEG/*输出第一副图片用于测试*/
 
 
@@ -16,7 +16,7 @@
 #define CAM_WIDGH 640
 #define CAM_HEIGHT  480
 // height widgh
-#define CAM_DEVICE "/dev/video1"
+#define CAM_DEVICE "/dev/video0"
 
 /**********************dbug*********************************/
 
