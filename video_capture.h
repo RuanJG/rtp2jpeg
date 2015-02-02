@@ -32,9 +32,9 @@ struct camera{
     struct buffer *buffers;
 };
 /*上面参数fmt_select选择*/
-#define FMT_JPEG    0x10000001
-#define FMT_YUYV422 0x10000002
-#define FMT_YUYV420 0x10000003
+#define FMT_JPEG    0x101
+#define FMT_YUYV422 0x102
+#define FMT_YUYV420 0x104
 /*辅助函数*/
 //void errno_exit(const char *s);
 //int xioctl(int fd,int request,void *arg);

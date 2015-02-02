@@ -55,6 +55,7 @@ static struct camera * cam_init(void)
     pcam->width         = CAM_WIDGH;
     pcam->height        = CAM_HEIGHT;
     pcam->display_depth = 5;
+    pcam->support_fmt   = 0;//
     return pcam;
 }
 

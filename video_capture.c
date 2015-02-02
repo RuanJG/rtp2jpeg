@@ -71,6 +71,24 @@ static void close_camera(struct camera *cam)
         errno_exit("close");
     cam->fd = -1;
 }
+/*success pos,fail -1*/
+static int find_string(const char *pSrc, const char *pDst)  
+{  
+    int i, j;  
+    for (i=0; pSrc[i]!='\0'; i++){  
+        if(pSrc[i]!=pDst[0])  
+            continue;         
+            j = 0;  
+            while(pDst[j]!='\0' && pSrc[i+j]!='\0'){  
+                j++;
+                if(pDst[j]!=pSrc[i+j])
+                    break;  
+            }
+            if(pDst[j]=='\0')
+                return i;
+    }  
+    return -1;  
+} 
 
 static void init_camera(struct camera*cam)
 {
@@ -83,6 +101,7 @@ static void init_camera(struct camera*cam)
    
     struct v4l2_requestbuffers req;
     unsigned int min;
+    int pos = -1;
 
     if (-1 == xioctl(cam->fd, VIDIOC_QUERYCAP, cap)) {
         if (EINVAL == errno) {
@@ -109,7 +128,6 @@ static void init_camera(struct camera*cam)
     printf("version:\t%d\n",cap->version);
     printf("capabilities:\t%x\n",cap->capabilities);
 #endif
-
     /*打印摄像头支持的格式*/
     fmtdesc->index = 0;
     fmtdesc->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -120,9 +138,24 @@ static void init_camera(struct camera*cam)
 #ifdef OUTPUT_CAMINFO
         printf("\t%d,%s\n",fmtdesc->index+1,fmtdesc->description);
 #endif
+        pos = find_string(fmtdesc->description,"JPEG");
+        if(pos != -1){
+            cam->support_fmt |= FMT_JPEG;
+            goto CON;
+        }    
+        pos = find_string(fmtdesc->description,"4:2:2");
+        if(pos!=-1){
+            cam->support_fmt |= FMT_YUYV422;
+            goto CON;
+        }    
+        pos = find_string(fmtdesc->description,"4:2:0");
+        if(pos!=-1){
+            cam->support_fmt |= FMT_YUYV420;
+            goto CON;
+        }    
+CON:
         fmtdesc->index++;
     }
-
     /*设置输出格式*/
     CLEAR(*cropcap);
 
@@ -134,51 +167,29 @@ static void init_camera(struct camera*cam)
     crop->c.top = 0;
     crop->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
    
-
-    int j=0;
-    int flag = 0;/*表示是否成功设置*/
-    for(;j<3;++j){
-        CLEAR(*fmt);
-        fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        fmt->fmt.pix.width = cam->width;
-        fmt->fmt.pix.height = cam->height;
-        switch(j){
-        case 0:
-            fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG; 
-            break;
-        case 1:
-            fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV; 
-            break;
-        case 2:
-            fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
-            break;
-        }
-        fmt->fmt.pix.field = V4L2_FIELD_INTERLACED; //隔行扫描
-        
-        if (-1 == xioctl(cam->fd, VIDIOC_S_FMT, fmt)){
-            continue;
-        }
-        else{
-            switch(j){
-            case 0:
-                cam->support_fmt = FMT_JPEG;
-                flag = 1;
-                break;
-            case 1:
-                cam->support_fmt = FMT_YUYV422;
-                flag = 1;
-                break;
-            case 2:
-                cam->support_fmt = FMT_YUYV420;
-                flag = 1;
-                break;
-            }
-        }
-        if(flag == 1)
-            break;
+    CLEAR(*fmt);
+    fmt->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmt->fmt.pix.width = cam->width;
+    fmt->fmt.pix.height = cam->height;
+    if( (cam->support_fmt & FMT_JPEG) == FMT_JPEG){
+        fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
+        cam->support_fmt = FMT_JPEG;
     }
-    if(flag == 0)
-        errno_exit("VIDIOC_S_FMT");
+    else if((cam->support_fmt & FMT_YUYV422) == FMT_YUYV422){
+        fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+        cam->support_fmt = FMT_YUYV422;
+    }
+    else if( (cam->support_fmt & FMT_YUYV420 ) == FMT_YUYV420 ){
+        fmt->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
+        cam->support_fmt = FMT_YUYV420;
+    }
+    else
+        errno_exit("no support fmt");
+
+    fmt->fmt.pix.field = V4L2_FIELD_INTERLACED;
+    
+    if (-1 == xioctl(cam->fd,VIDIOC_S_FMT,fmt))
+        errno_exit("VIDIOC_S_FMT fail");
         
 #if 1
     CLEAR(*streamparm);
