@@ -1,5 +1,5 @@
 TOP_DIR := $(shell pwd)
-APP = $(TOP_DIR)/camera_encode
+APP = $(TOP_DIR)/bin/camera_encode
 
 CC = gcc
 CFLAGS = -g 
@@ -11,4 +11,4 @@ all:  $(OBJS)
 	$(CC) -g -o $(APP) $(OBJS) $(LIBS) 
 
 clean:
-	rm -f *.o a.out $(APP) core *~ *.jpg  camera_encode 
+	rm -f *.o a.out $(APP)/bin/camera_encode core *~ *.jpg
