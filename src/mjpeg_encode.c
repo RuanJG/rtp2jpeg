@@ -23,7 +23,8 @@
 #include <errno.h>
 #include <malloc.h>
 #include <signal.h>
-#include "jpeglib.h"
+//#include "jpeglib.h"
+#include <jpeglib.h>
 #include "mjpeg_rtp.h"
 #include "sock.h"
 #include "config.h"
@@ -182,6 +183,9 @@ static int encode_rgb_to_jpeg_mem(unsigned char *inbuf,unsigned char **outbuf,un
     unsigned char*buf = NULL;
     int x;
 
+#if 1
+	return 1;
+#else
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_compress(&cinfo);
     jpeg_mem_dest(&cinfo,outbuf,outsize);
@@ -214,6 +218,7 @@ static int encode_rgb_to_jpeg_mem(unsigned char *inbuf,unsigned char **outbuf,un
     jpeg_destroy_compress(&cinfo);    
     free(buf);
     return 1;
+#endif
 }
 
 unsigned short seq_num = 0;

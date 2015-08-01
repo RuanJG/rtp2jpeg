@@ -13,8 +13,8 @@
 
 
 /******************摄像头信息***************************/
-#define CAM_WIDGH 640
-#define CAM_HEIGHT  480
+#define CAM_WIDGH 1280 //640
+#define CAM_HEIGHT  720 //480
 // height widgh
 #define CAM_DEVICE "/dev/video0"
 

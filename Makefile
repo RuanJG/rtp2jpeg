@@ -34,7 +34,7 @@ define Build/Configure
 endef
 
 define Package/rtp2jpeg/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/camera_encode $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/camera_encode $(1)/bin
 endef
 $(eval $(call BuildPackage,rtp2jpeg))

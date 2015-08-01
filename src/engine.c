@@ -33,7 +33,8 @@ static void create_cam_pthread(struct camera *cam);
 void stop_engine(void)
 {
     stop_all = 1;
-    usleep(1000*100);
+    //usleep(1000*100);
+	pthread_join(cam_thread,NULL);
    free(cam->device_name);
     v4l2_exit(cam);
     //exit_socket(xxx);
@@ -44,7 +45,13 @@ void start_engine(void)
     //init_socket(xxx);
     cam = cam_init();
     v4l2_init(cam);
-    create_cam_pthread(cam);
+	if ( cam->support_fmt == FMT_JPEG )
+	    	create_cam_pthread(cam);
+	else{
+		printf("Can not support fmt, but jpeg\n"); 
+   	free(cam->device_name);
+    	v4l2_exit(cam);
+	}
 }
 
 static struct camera * cam_init(void)
@@ -71,7 +78,8 @@ void capture_encode_thread(void)
             if(cam->support_fmt == FMT_JPEG)
                 jpeg_rtp(bigbuffer,cam->width,cam->height,imagesize);/*直接从摄像头得到的数据就是jpeg数据*/
             else
-                jpeg_encode_yuyv422_rtp(bigbuffer,cam->width,cam->height);
+		printf("%s %s %d %s\n",__FILE__,__func__,__LINE__,"do not support unJpeg fram");
+                //jpeg_encode_yuyv422_rtp(bigbuffer,cam->width,cam->height);
             dbug("jpeg_encode");
         }
     }
